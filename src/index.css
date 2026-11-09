@@ -52,6 +52,60 @@ body {
   white-space: nowrap;
 }
 
+
+/* Sidebar menu */
+.ant-layout-sider {
+  overflow: hidden;
+}
+
+.ant-menu-dark {
+  background: transparent !important;
+}
+
+/* Default menu item */
+.ant-menu-dark .ant-menu-item {
+  color: #94a3b8 !important;
+  border-radius: 9px !important;
+  margin: 5px 0 !important;
+  width: 100% !important;
+  height: 44px !important;
+  line-height: 44px !important;
+  transition: all 0.2s ease;
+}
+
+/* Hover */
+.ant-menu-dark .ant-menu-item:hover {
+  color: #ffffff !important;
+  background: #1e293b !important;
+}
+
+/* Active menu */
+.ant-menu-dark .ant-menu-item-selected {
+  color: #ffffff !important;
+  background: linear-gradient(90deg,
+      #2563eb,
+      #1d4ed8) !important;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+/* Active icon */
+.ant-menu-dark .ant-menu-item-selected .ant-menu-item-icon {
+  color: #ffffff !important;
+}
+
+/* Collapse button */
+.ant-layout-sider-trigger {
+  background: #111827 !important;
+  border-top: 1px solid #273244;
+  color: #94a3b8 !important;
+}
+
+.ant-layout-sider-trigger:hover {
+  color: #ffffff !important;
+}
+
+
 @media (min-width: 640px) {
   .user-info-text {
     display: block !important;

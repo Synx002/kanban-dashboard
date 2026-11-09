@@ -1,13 +1,30 @@
+
 import React, { useState } from 'react';
-import { Table, Tag, Button, Space, Card, Select, Popconfirm, Empty, message } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+    Table,
+    Tag,
+    Button,
+    Space,
+    Card,
+    Select,
+    Popconfirm,
+    Empty,
+    message,
+    Typography,
+} from 'antd';
+import {
+    EditOutlined,
+    DeleteOutlined,
+    PlusOutlined,
+} from '@ant-design/icons';
 import dayjs from 'dayjs';
+
 import type { Status, Task } from '../../types';
 import { useTaskStore } from '../../store/taskStore';
 import { useAuthStore } from '../../store/authStore';
 import { TaskModal } from '../kanban/TaskModal';
 
-const { Option } = Select;
+const { Text, Title } = Typography;
 
 const STATUS_COLORS: Record<Status, string> = {
     backlog: 'warning',
@@ -16,10 +33,24 @@ const STATUS_COLORS: Record<Status, string> = {
     done: 'success',
 };
 
+const STATUS_LABELS: Record<Status, string> = {
+    backlog: 'Backlog',
+    todo: 'To Do',
+    in_progress: 'In Progress',
+    done: 'Done',
+};
+
 const PRIORITY_COLORS: Record<string, string> = {
     high: 'red',
     medium: 'orange',
     low: 'green',
+};
+
+const cardStyle: React.CSSProperties = {
+    borderRadius: 12,
+    border: '1px solid #e5e7eb',
+    boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
+    overflow: 'hidden',
 };
 
 export const MyTasksView: React.FC = () => {
@@ -33,9 +64,8 @@ export const MyTasksView: React.FC = () => {
         ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || user.username
         : 'Emily Johnson';
 
-    // Filter tasks for this user
     const userTasks = tasks.filter(
-        (t) => t.assignee === userFullName || t.assignee === 'Emily Johnson'
+        (task) => task.assignee === userFullName
     );
 
     const handleStatusChange = (id: string, newStatus: Status) => {
@@ -50,75 +80,118 @@ export const MyTasksView: React.FC = () => {
 
     const columns = [
         {
-            title: 'Judul Tugas',
+            title: 'JUDUL TUGAS',
             dataIndex: 'title',
             key: 'title',
             render: (title: string, record: Task) => (
-                <div>
-                    <div style={{ fontWeight: 600, color: '#1e293b' }}>{title}</div>
-                    <div style={{ fontSize: 12, color: '#64748b' }}>{record.description}</div>
+                <div style={{ maxWidth: 360 }}>
+                    <Text
+                        strong
+                        style={{
+                            display: 'block',
+                            color: '#1e293b',
+                            fontSize: 14,
+                            marginBottom: 3,
+                        }}
+                    >
+                        {title}
+                    </Text>
+                    <Text
+                        type="secondary"
+                        style={{ fontSize: 12 }}
+                        ellipsis={{ tooltip: record.description }}
+                    >
+                        {record.description || 'Tidak ada deskripsi'}
+                    </Text>
                 </div>
             ),
         },
         {
-            title: 'Prioritas',
+            title: 'PRIORITAS',
             dataIndex: 'priority',
             key: 'priority',
-            width: 120,
+            width: 125,
             render: (priority: string) => (
-                <Tag color={PRIORITY_COLORS[priority]} style={{ fontWeight: 600 }}>
+                <Tag
+                    color={PRIORITY_COLORS[priority] || 'default'}
+                    style={{
+                        borderRadius: 20,
+                        fontWeight: 600,
+                        fontSize: 11,
+                        padding: '2px 10px',
+                        border: 'none',
+                    }}
+                >
                     {priority.toUpperCase()}
                 </Tag>
             ),
         },
         {
-            title: 'Status',
+            title: 'STATUS',
             dataIndex: 'status',
             key: 'status',
             width: 160,
             render: (status: Status, record: Task) => (
                 <Select
                     value={status}
-                    size="small"
-                    style={{ width: 130 }}
-                    onChange={(val) => handleStatusChange(record.id, val)}
-                >
-                    <Option value="backlog">
-                        <Tag color={STATUS_COLORS.backlog}>Backlog</Tag>
-                    </Option>
-                    <Option value="todo">
-                        <Tag color={STATUS_COLORS.todo}>To Do</Tag>
-                    </Option>
-                    <Option value="in_progress">
-                        <Tag color={STATUS_COLORS.in_progress}>In Progress</Tag>
-                    </Option>
-                    <Option value="done">
-                        <Tag color={STATUS_COLORS.done}>Done</Tag>
-                    </Option>
-                </Select>
+                    size="middle"
+                    style={{ width: 135 }}
+                    variant="borderless"
+                    onChange={(value: Status) =>
+                        handleStatusChange(record.id, value)
+                    }
+                    options={(
+                        Object.keys(STATUS_LABELS) as Status[]
+                    ).map((key) => ({
+                        value: key,
+                        label: (
+                            <Tag
+                                color={STATUS_COLORS[key]}
+                                style={{
+                                    borderRadius: 20,
+                                    border: 'none',
+                                    margin: 0,
+                                    fontSize: 11,
+                                    fontWeight: 500,
+                                }}
+                            >
+                                {STATUS_LABELS[key]}
+                            </Tag>
+                        ),
+                    }))}
+                />
             ),
         },
         {
-            title: 'Due Date',
+            title: 'DUE DATE',
             dataIndex: 'dueDate',
             key: 'dueDate',
             width: 140,
             render: (date: string) => (
-                <span style={{ fontSize: 13, color: '#475569' }}>
+                <Text
+                    style={{
+                        fontSize: 13,
+                        color: '#64748b',
+                    }}
+                >
                     {date ? dayjs(date).format('DD MMM YYYY') : '-'}
-                </span>
+                </Text>
             ),
         },
         {
-            title: 'Aksi',
+            title: 'AKSI',
             key: 'action',
-            width: 140,
+            width: 150,
             render: (_: unknown, record: Task) => (
-                <Space size="small">
+                <Space size={4}>
                     <Button
                         type="text"
                         size="small"
-                        icon={<EditOutlined style={{ color: '#1890ff' }} />}
+                        icon={<EditOutlined />}
+                        style={{
+                            color: '#2563eb',
+                            fontWeight: 500,
+                        }}
                         onClick={() => {
                             setEditingTask(record);
                             setModalOpen(true);
@@ -126,6 +199,7 @@ export const MyTasksView: React.FC = () => {
                     >
                         Edit
                     </Button>
+
                     <Popconfirm
                         title="Hapus tugas?"
                         description="Apakah Anda yakin ingin menghapus tugas ini?"
@@ -139,6 +213,7 @@ export const MyTasksView: React.FC = () => {
                             danger
                             size="small"
                             icon={<DeleteOutlined />}
+                            style={{ fontWeight: 500 }}
                         >
                             Hapus
                         </Button>
@@ -149,20 +224,37 @@ export const MyTasksView: React.FC = () => {
     ];
 
     return (
-        <div>
+        <div style={{ paddingBottom: 24 }}>
+            {/* Page Header */}
             <div
                 style={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    marginBottom: 20,
+                    gap: 16,
+                    marginBottom: 24,
+                    flexWrap: 'wrap',
                 }}
             >
                 <div>
-                    <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Tugas Saya</h2>
-                    <p style={{ margin: 0, color: '#64748b', fontSize: 13 }}>
-                        Menampilkan tugas yang ditugaskan kepada <strong>{userFullName}</strong> ({userTasks.length} tugas)
-                    </p>
+                    <Title
+                        level={3}
+                        style={{
+                            margin: 0,
+                            color: '#111827',
+                            fontWeight: 700,
+                        }}
+                    >
+                        Tugas Saya
+                    </Title>
+
+                    <Text style={{ color: '#64748b', fontSize: 14 }}>
+                        Kelola dan pantau tugas yang ditugaskan kepada{' '}
+                        <Text strong style={{ color: '#334155' }}>
+                            {userFullName}
+                        </Text>
+                        .
+                    </Text>
                 </div>
 
                 <Button
@@ -172,21 +264,70 @@ export const MyTasksView: React.FC = () => {
                         setEditingTask(null);
                         setModalOpen(true);
                     }}
+                    style={{
+                        height: 40,
+                        borderRadius: 8,
+                        background: '#2563eb',
+                        boxShadow: 'none',
+                        fontWeight: 500,
+                    }}
                 >
-                    Tambah Tugas Saya
+                    Tambah Tugas
                 </Button>
             </div>
 
-            <Card styles={{ body: { padding: 0 } }} style={{ borderRadius: 10, overflow: 'hidden' }}>
+            {/* Task Summary */}
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    marginBottom: 16,
+                }}
+            >
+                <Text strong style={{ color: '#111827', fontSize: 14 }}>
+                    Daftar Tugas
+                </Text>
+
+                <Tag
+                    style={{
+                        borderRadius: 20,
+                        background: '#eff6ff',
+                        color: '#2563eb',
+                        border: 'none',
+                        fontWeight: 600,
+                        margin: 0,
+                    }}
+                >
+                    {userTasks.length} tugas
+                </Tag>
+            </div>
+
+            {/* Task Table */}
+            <Card
+                style={cardStyle}
+                styles={{
+                    body: { padding: 0 },
+                }}
+            >
                 <Table
                     dataSource={userTasks}
                     columns={columns}
                     rowKey="id"
-                    pagination={{ pageSize: 8 }}
+                    scroll={{ x: 750 }}
+                    pagination={{
+                        pageSize: 8,
+                        showSizeChanger: false,
+                        showTotal: (total) => `Total ${total} tugas`,
+                        style: {
+                            padding: '0 20px 12px',
+                        },
+                    }}
                     locale={{
                         emptyText: (
                             <Empty
-                                description="Tidak ada tugas yang ditugaskan kepada Anda saat ini."
+                                description="Belum ada tugas yang ditugaskan kepada Anda."
+                                image={Empty.PRESENTED_IMAGE_SIMPLE}
                                 style={{ padding: 32 }}
                             />
                         ),
@@ -194,13 +335,16 @@ export const MyTasksView: React.FC = () => {
                 />
             </Card>
 
+            {/* Task Modal */}
             <TaskModal
                 open={modalOpen}
-                onClose={() => setModalOpen(false)}
+                onClose={() => {
+                    setModalOpen(false);
+                    setEditingTask(null);
+                }}
                 editingTask={editingTask}
                 defaultStatus="todo"
             />
         </div>
     );
 };
-

@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { Row, Col, Card, Statistic, Progress } from 'antd';
+import { Row, Col, Card, Statistic, Progress, Typography } from 'antd';
 import {
     UnorderedListOutlined,
     ClockCircleOutlined,
@@ -9,6 +10,8 @@ import {
 } from '@ant-design/icons';
 import { useTaskStore } from '../../store/taskStore';
 
+const { Text } = Typography;
+
 export const DashboardStats: React.FC = () => {
     const { tasks } = useTaskStore();
 
@@ -16,120 +19,196 @@ export const DashboardStats: React.FC = () => {
     const backlogTasks = tasks.filter((t) => t.status === 'backlog').length;
     const inProgressTasks = tasks.filter((t) => t.status === 'in_progress').length;
     const completedTasks = tasks.filter((t) => t.status === 'done').length;
-    const highPriorityTasks = tasks.filter((t) => t.priority === 'high' && t.status !== 'done').length;
 
-    const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+    const highPriorityTasks = tasks.filter(
+        (t) => t.priority === 'high' && t.status !== 'done'
+    ).length;
+
+    const completionRate =
+        totalTasks > 0
+            ? Math.round((completedTasks / totalTasks) * 100)
+            : 0;
+
+    const stats = [
+        {
+            title: 'Total Tasks',
+            value: totalTasks,
+            description: 'Jumlah seluruh tugas',
+            icon: <UnorderedListOutlined />,
+            color: '#3b82f6',
+            background: '#eff6ff',
+        },
+        {
+            title: 'Backlog Tasks',
+            value: backlogTasks,
+            description: 'Belum mulai dikerjakan',
+            icon: <ClockCircleOutlined />,
+            color: '#d97706',
+            background: '#fffbeb',
+        },
+        {
+            title: 'In Progress',
+            value: inProgressTasks,
+            description: 'Sedang aktif dikerjakan',
+            icon: <HourglassOutlined />,
+            color: '#8b5cf6',
+            background: '#f5f3ff',
+        },
+        {
+            title: 'Completed Tasks',
+            value: completedTasks,
+            description: 'Tugas berhasil diselesaikan',
+            icon: <CheckCircleOutlined />,
+            color: '#16a34a',
+            background: '#f0fdf4',
+        },
+    ];
 
     return (
         <div style={{ marginBottom: 24 }}>
             <Row gutter={[16, 16]}>
-                {/* 1. Total Tasks */}
-                <Col xs={24} sm={12} lg={6}>
-                    <Card
-                        bordered={false}
-                        hoverable
-                        style={{
-                            borderRadius: 10,
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                            borderLeft: '4px solid #1890ff',
-                        }}
-                    >
-                        <Statistic
-                            title={<span style={{ color: '#64748b', fontSize: 13, fontWeight: 500 }}>Total Tasks</span>}
-                            value={totalTasks}
-                            prefix={<UnorderedListOutlined style={{ color: '#1890ff', marginRight: 6 }} />}
-                            valueStyle={{ color: '#1e293b', fontWeight: 700 }}
-                        />
-                        <div style={{ marginTop: 10 }}>
-                            <Progress
-                                percent={completionRate}
-                                size="small"
-                                status={completionRate === 100 ? 'success' : 'active'}
-                                strokeColor="#1890ff"
+                {stats.map((stat) => (
+                    <Col xs={24} sm={12} lg={6} key={stat.title}>
+                        <Card
+                            hoverable
+                            bordered={false}
+                            style={{
+                                borderRadius: 12,
+                                border: '1px solid #e5e7eb',
+                                boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
+                                height: '100%',
+                            }}
+                            styles={{
+                                body: {
+                                    padding: 20,
+                                },
+                            }}
+                        >
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginBottom: 16,
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        color: '#64748b',
+                                        fontSize: 13,
+                                        fontWeight: 500,
+                                    }}
+                                >
+                                    {stat.title}
+                                </Text>
+
+                                <div
+                                    style={{
+                                        width: 36,
+                                        height: 36,
+                                        borderRadius: 10,
+                                        background: stat.background,
+                                        color: stat.color,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: 16,
+                                    }}
+                                >
+                                    {stat.icon}
+                                </div>
+                            </div>
+
+                            <Statistic
+                                value={stat.value}
+                                valueStyle={{
+                                    color: '#111827',
+                                    fontSize: 28,
+                                    fontWeight: 700,
+                                    lineHeight: 1.2,
+                                }}
                             />
-                            <span style={{ fontSize: 11, color: '#94a3b8' }}>
-                                {completionRate}% tugas telah selesai
-                            </span>
-                        </div>
-                    </Card>
-                </Col>
 
-                {/* 2. Backlog Tasks */}
-                <Col xs={24} sm={12} lg={6}>
-                    <Card
-                        bordered={false}
-                        hoverable
-                        style={{
-                            borderRadius: 10,
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                            borderLeft: '4px solid #f59e0b',
-                        }}
-                    >
-                        <Statistic
-                            title={<span style={{ color: '#64748b', fontSize: 13, fontWeight: 500 }}>Backlog Tasks</span>}
-                            value={backlogTasks}
-                            prefix={<ClockCircleOutlined style={{ color: '#f59e0b', marginRight: 6 }} />}
-                            valueStyle={{ color: '#f59e0b', fontWeight: 700 }}
-                        />
-                        <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8' }}>
-                            Tugas yang belum dikerjakan
-                        </div>
-                    </Card>
-                </Col>
+                            <Text
+                                style={{
+                                    display: 'block',
+                                    color: '#94a3b8',
+                                    fontSize: 12,
+                                    marginTop: 8,
+                                }}
+                            >
+                                {stat.description}
+                            </Text>
 
-                {/* 3. In Progress Tasks */}
-                <Col xs={24} sm={12} lg={6}>
-                    <Card
-                        bordered={false}
-                        hoverable
-                        style={{
-                            borderRadius: 10,
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                            borderLeft: '4px solid #8b5cf6',
-                        }}
-                    >
-                        <Statistic
-                            title={<span style={{ color: '#64748b', fontSize: 13, fontWeight: 500 }}>In Progress Tasks</span>}
-                            value={inProgressTasks}
-                            prefix={<HourglassOutlined style={{ color: '#8b5cf6', marginRight: 6 }} />}
-                            valueStyle={{ color: '#8b5cf6', fontWeight: 700 }}
-                        />
-                        <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8' }}>
-                            Sedang aktif dikerjakan
-                        </div>
-                    </Card>
-                </Col>
-
-                {/* 4. Completed Tasks */}
-                <Col xs={24} sm={12} lg={6}>
-                    <Card
-                        bordered={false}
-                        hoverable
-                        style={{
-                            borderRadius: 10,
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                            borderLeft: '4px solid #10b981',
-                        }}
-                    >
-                        <Statistic
-                            title={<span style={{ color: '#64748b', fontSize: 13, fontWeight: 500 }}>Completed Tasks</span>}
-                            value={completedTasks}
-                            prefix={<CheckCircleOutlined style={{ color: '#10b981', marginRight: 6 }} />}
-                            valueStyle={{ color: '#10b981', fontWeight: 700 }}
-                        />
-                        <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
-                            {highPriorityTasks > 0 ? (
-                                <span style={{ color: '#ff4d4f' }}>
-                                    <FireOutlined /> {highPriorityTasks} prioritas tinggi tersisa
-                                </span>
-                            ) : (
-                                <span style={{ color: '#10b981' }}>Semua prioritas tinggi beres</span>
+                            {stat.title === 'Total Tasks' && (
+                                <div style={{ marginTop: 16 }}>
+                                    <Progress
+                                        percent={completionRate}
+                                        size="small"
+                                        showInfo={false}
+                                        strokeColor="#60a5fa"
+                                        trailColor="#f1f5f9"
+                                    />
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            marginTop: 6,
+                                        }}
+                                    >
+                                        <Text
+                                            style={{
+                                                color: '#94a3b8',
+                                                fontSize: 11,
+                                            }}
+                                        >
+                                            Completion rate
+                                        </Text>
+                                        <Text
+                                            strong
+                                            style={{
+                                                color: '#3b82f6',
+                                                fontSize: 11,
+                                            }}
+                                        >
+                                            {completionRate}%
+                                        </Text>
+                                    </div>
+                                </div>
                             )}
-                        </div>
-                    </Card>
-                </Col>
+
+                            {stat.title === 'Completed Tasks' && (
+                                <div
+                                    style={{
+                                        marginTop: 16,
+                                        paddingTop: 12,
+                                        borderTop: '1px solid #f1f5f9',
+                                        minHeight: 34,
+                                    }}
+                                >
+                                    <Text
+                                        style={{
+                                            fontSize: 11,
+                                            color: highPriorityTasks > 0
+                                                ? '#dc7373'
+                                                : '#16a34a',
+                                        }}
+                                    >
+                                        {highPriorityTasks > 0 ? (
+                                            <>
+                                                <FireOutlined /> {highPriorityTasks}{' '}
+                                                prioritas tinggi tersisa
+                                            </>
+                                        ) : (
+                                            'Semua prioritas tinggi beres'
+                                        )}
+                                    </Text>
+                                </div>
+                            )}
+                        </Card>
+                    </Col>
+                ))}
             </Row>
         </div>
     );
 };
-

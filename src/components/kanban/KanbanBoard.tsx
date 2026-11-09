@@ -3,12 +3,13 @@ import {
     DndContext,
     DragOverlay,
     PointerSensor,
+    TouchSensor,
     useSensor,
     useSensors,
     type DragStartEvent,
     type DragEndEvent,
 } from '@dnd-kit/core';
-import { message } from 'antd';
+import { message, Segmented } from 'antd';
 import type { Status, Task } from '../../types';
 import { useTaskStore } from '../../store/taskStore';
 import { KanbanColumn, type ColumnDefinition } from './KanbanColumn';
@@ -53,16 +54,25 @@ export const KanbanBoard: React.FC = () => {
     // Drag & Drop State
     const [activeTask, setActiveTask] = useState<Task | null>(null);
 
+    // Mobile Active Column Tab (for single column focus on mobile)
+    const [mobileColumnTab, setMobileColumnTab] = useState<string>('all');
+
     // Modal State
     const [modalOpen, setModalOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
     const [targetStatus, setTargetStatus] = useState<Status>('backlog');
 
-    // Sensors setup (PointerSensor with 5px distance to avoid accidental drags when clicking buttons)
+    // Sensors setup (PointerSensor + TouchSensor for mobile touchscreens)
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
                 distance: 5,
+            },
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                delay: 200,
+                tolerance: 5,
             },
         })
     );
@@ -124,23 +134,49 @@ export const KanbanBoard: React.FC = () => {
         message.success('Tugas berhasil dihapus!');
     };
 
+    // Columns to display based on mobile tab
+    const visibleColumns = mobileColumnTab === 'all'
+        ? COLUMNS
+        : COLUMNS.filter((c) => c.id === mobileColumnTab);
+
     return (
         <DndContext
             sensors={sensors}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
+            {/* Mobile Column Switcher (Visible on mobile/tablet) */}
             <div
+                className="mobile-only"
                 style={{
-                    display: 'flex',
-                    gap: 16,
+                    marginBottom: 14,
                     overflowX: 'auto',
-                    paddingBottom: 16,
-                    minHeight: 520,
+                    paddingBottom: 2,
+                }}
+            >
+                <Segmented
+                    value={mobileColumnTab}
+                    onChange={(val) => setMobileColumnTab(val as string)}
+                    block
+                    options={[
+                        { label: `Semua (${filteredTasks.length})`, value: 'all' },
+                        { label: `Backlog (${filteredTasks.filter((t) => t.status === 'backlog').length})`, value: 'backlog' },
+                        { label: `To Do (${filteredTasks.filter((t) => t.status === 'todo').length})`, value: 'todo' },
+                        { label: `In Progress (${filteredTasks.filter((t) => t.status === 'in_progress').length})`, value: 'in_progress' },
+                        { label: `Done (${filteredTasks.filter((t) => t.status === 'done').length})`, value: 'done' },
+                    ]}
+                />
+            </div>
+
+            {/* Kanban Columns Container */}
+            <div
+                className="kanban-board-scroll"
+                style={{
+                    minHeight: 460,
                     alignItems: 'flex-start',
                 }}
             >
-                {COLUMNS.map((column) => {
+                {visibleColumns.map((column) => {
                     const columnTasks = filteredTasks.filter(
                         (task) => task.status === column.id
                     );
@@ -153,6 +189,7 @@ export const KanbanBoard: React.FC = () => {
                             onAddTask={handleOpenAddModal}
                             onEditTask={handleOpenEditModal}
                             onDeleteTask={handleDeleteTask}
+                            isSingleView={mobileColumnTab !== 'all'}
                         />
                     );
                 })}
@@ -173,4 +210,3 @@ export const KanbanBoard: React.FC = () => {
         </DndContext>
     );
 };
-

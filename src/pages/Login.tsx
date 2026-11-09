@@ -49,15 +49,18 @@ export default function Login() {
                 alignItems: 'center',
                 minHeight: '100vh',
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                padding: '16px',
+                padding: '16px 12px',
             }}
         >
             <Card
                 style={{
                     width: '100%',
-                    maxWidth: 420,
-                    borderRadius: 12,
+                    maxWidth: 400,
+                    borderRadius: 14,
                     boxShadow: '0 12px 32px rgba(0, 0, 0, 0.2)',
+                }}
+                styles={{
+                    body: { padding: '24px 20px' },
                 }}
             >
                 <div style={{ textAlign: 'center', marginBottom: 24 }}>

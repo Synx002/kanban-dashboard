@@ -19,6 +19,7 @@ interface KanbanColumnProps {
     onAddTask: (defaultStatus: Status) => void;
     onEditTask: (task: Task) => void;
     onDeleteTask: (id: string) => void;
+    isSingleView?: boolean;
 }
 
 export const KanbanColumn: React.FC<KanbanColumnProps> = ({
@@ -27,6 +28,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
     onAddTask,
     onEditTask,
     onDeleteTask,
+    isSingleView = false,
 }) => {
     const { setNodeRef, isOver } = useDroppable({
         id: column.id,
@@ -34,10 +36,11 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
 
     return (
         <div
+            className="kanban-column-wrapper"
             style={{
-                flex: '1 1 280px',
-                minWidth: 280,
-                maxWidth: 360,
+                flex: isSingleView ? '1 1 100%' : '1 1 280px',
+                minWidth: isSingleView ? '100%' : 270,
+                maxWidth: isSingleView ? '100%' : 360,
                 background: '#f8fafc',
                 borderRadius: 12,
                 display: 'flex',
@@ -45,14 +48,14 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
                 border: isOver ? `2px dashed ${column.color}` : '1px solid #e2e8f0',
                 backgroundColor: isOver ? '#f1f5f9' : '#f8fafc',
                 transition: 'all 0.2s ease',
-                maxHeight: 'calc(100vh - 280px)',
-                minHeight: 480,
+                maxHeight: 'calc(100vh - 240px)',
+                minHeight: 380,
             }}
         >
             {/* Column Header */}
             <div
                 style={{
-                    padding: '14px 16px',
+                    padding: '12px 14px',
                     borderBottom: '1px solid #e2e8f0',
                     display: 'flex',
                     alignItems: 'center',
@@ -63,8 +66,8 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
                     borderTop: `4px solid ${column.color}`,
                 }}
             >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontWeight: 700, fontSize: 15, color: '#1e293b' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontWeight: 700, fontSize: 14, color: '#1e293b' }}>
                         {column.title}
                     </span>
                     <Badge
@@ -73,14 +76,15 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
                             backgroundColor: column.color,
                             boxShadow: 'none',
                             fontWeight: 600,
+                            fontSize: 11,
                         }}
                     />
                     <Tooltip title={column.description}>
-                        <InfoCircleOutlined style={{ color: '#94a3b8', fontSize: 13, cursor: 'pointer' }} />
+                        <InfoCircleOutlined style={{ color: '#94a3b8', fontSize: 12, cursor: 'pointer' }} />
                     </Tooltip>
                 </div>
 
-                <Tooltip title={`Tambah tugas ke ${column.title}`}>
+                <Tooltip title={`Tambah ke ${column.title}`}>
                     <Button
                         type="text"
                         size="small"
@@ -95,10 +99,10 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
             <div
                 ref={setNodeRef}
                 style={{
-                    padding: 12,
+                    padding: 10,
                     flex: 1,
                     overflowY: 'auto',
-                    minHeight: 180,
+                    minHeight: 160,
                     display: 'flex',
                     flexDirection: 'column',
                 }}
@@ -136,4 +140,3 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
         </div>
     );
 };
-

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Layout, Menu, Avatar, Space, Button, message } from 'antd';
+import { Layout, Menu, Avatar, Space, Button, Drawer, message } from 'antd';
 import {
     DashboardOutlined,
     UnorderedListOutlined,
@@ -7,6 +7,7 @@ import {
     LogoutOutlined,
     UserOutlined,
     PlusOutlined,
+    MenuOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
@@ -23,6 +24,7 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const { user, logout } = useAuthStore();
     const [collapsed, setCollapsed] = useState(false);
+    const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState<'dashboard' | 'tasks' | 'settings'>('dashboard');
     const [createModalOpen, setCreateModalOpen] = useState(false);
 
@@ -47,57 +49,62 @@ export default function Dashboard() {
             key: 'settings',
             icon: <SettingOutlined />,
             label: 'Settings',
-        }
+        },
     ];
 
     const fullName = user
         ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || user.username
         : 'Emily Johnson';
 
+    const handleMenuClick = (key: string) => {
+        setSelectedMenu(key as 'dashboard' | 'tasks' | 'settings');
+        setMobileDrawerOpen(false);
+    };
+
     return (
         <Layout style={{ minHeight: '100vh', background: '#f1f5f9' }}>
-
-            {/* Sidebar Navigation */}
+            {/* Desktop Sidebar Navigation (Hidden on < 992px) */}
             <Sider
                 collapsible
                 collapsed={collapsed}
                 onCollapse={(value) => setCollapsed(value)}
                 theme="dark"
-                width={250}
-                collapsedWidth={80}
-                trigger={null}
+                width={240}
+                collapsedWidth={76}
+                breakpoint="lg"
+                className="desktop-only"
                 style={{
                     background: '#111827',
-                    boxShadow: '4px 0 20px rgba(0,0,0,0.08)',
+                    boxShadow: '4px 0 20px rgba(0,0,0,0.06)',
                     borderRight: '1px solid #1f2937',
+                    minHeight: '100vh',
                 }}
             >
                 {/* Brand / Logo */}
                 <div
                     style={{
-                        height: 72,
+                        height: 68,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: collapsed ? 'center' : 'flex-start',
-                        padding: collapsed ? 0 : '0 24px',
+                        padding: collapsed ? 0 : '0 20px',
                         gap: 12,
-                        borderBottom: '1px solid #273244',
+                        borderBottom: '1px solid #1f2937',
                     }}
                 >
                     <div
                         style={{
-                            width: 38,
-                            height: 38,
-                            minWidth: 38,
-                            borderRadius: 11,
+                            width: 36,
+                            height: 36,
+                            minWidth: 36,
+                            borderRadius: 10,
                             background: 'linear-gradient(135deg, #38bdf8, #2563eb)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             color: '#fff',
-                            fontSize: 21,
+                            fontSize: 18,
                             fontWeight: 800,
-                            boxShadow: '0 4px 12px rgba(37,99,235,0.3)',
                         }}
                     >
                         ✦
@@ -107,11 +114,11 @@ export default function Dashboard() {
                         <div>
                             <div
                                 style={{
-                                    fontSize: 18,
+                                    fontSize: 16,
                                     fontWeight: 750,
                                     color: '#f9fafb',
-                                    letterSpacing: '-0.6px',
-                                    lineHeight: 1.3,
+                                    letterSpacing: '-0.4px',
+                                    lineHeight: 1.2,
                                 }}
                             >
                                 TaskMaster
@@ -120,9 +127,8 @@ export default function Dashboard() {
                                 style={{
                                     fontSize: 10,
                                     color: '#94a3b8',
-                                    letterSpacing: '1.2px',
+                                    letterSpacing: '1px',
                                     fontWeight: 600,
-                                    marginTop: 3,
                                 }}
                             >
                                 WORKSPACE
@@ -131,86 +137,163 @@ export default function Dashboard() {
                     )}
                 </div>
 
-                {/* Navigation Label */}
-                {!collapsed && (
-                    <div
-                        style={{
-                            padding: '26px 24px 10px',
-                            color: '#64748b',
-                            fontSize: 10,
-                            fontWeight: 700,
-                            letterSpacing: '1.3px',
-                        }}
-                    >
-                        MAIN MENU
-                    </div>
-                )}
-
                 {/* Sidebar Menu */}
                 <Menu
                     theme="dark"
                     selectedKeys={[selectedMenu]}
                     mode="inline"
                     items={menuItems}
-                    onClick={({ key }) => {
-                        setSelectedMenu(
-                            key as 'dashboard' | 'tasks' | 'settings'
-                        );
-                    }}
+                    onClick={({ key }) => handleMenuClick(key)}
                     style={{
                         background: 'transparent',
                         borderRight: 0,
-                        padding: collapsed ? '12px 8px' : '8px 12px',
+                        padding: collapsed ? '12px 6px' : '8px 10px',
                         fontSize: 13,
                         fontWeight: 500,
                     }}
                 />
 
-                {/* Bottom Section */}
+                {/* Bottom Logout Button */}
                 <div
                     style={{
                         position: 'absolute',
                         bottom: 0,
                         left: 0,
                         right: 0,
-                        padding: collapsed ? '16px 8px' : '20px 16px',
-                        borderTop: '1px solid #273244',
+                        padding: collapsed ? '12px 6px' : '16px 14px',
+                        borderTop: '1px solid #1f2937',
                     }}
                 >
-                    {!collapsed && (
-                        <div
-                            style={{
-                                padding: 12,
-                                background: '#1f2937',
-                                borderRadius: 10,
-                                color: '#cbd5e1',
-                            }}
-                        >
-                            <div style={{ fontSize: 11, fontWeight: 600 }}>
-                                TaskMaster Workspace
-                            </div>
-                            <div
-                                style={{
-                                    fontSize: 10,
-                                    color: '#94a3b8',
-                                    marginTop: 5,
-                                }}
-                            >
-                                Manage your work efficiently.
-                            </div>
-                        </div>
-                    )}
+                    <Button
+                        icon={<LogoutOutlined />}
+                        danger
+                        type="text"
+                        onClick={handleLogout}
+                        block={!collapsed}
+                        style={{
+                            borderRadius: 6,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: collapsed ? 'center' : 'flex-start',
+                            color: '#f87171',
+                        }}
+                    >
+                        {!collapsed && <span>Logout</span>}
+                    </Button>
                 </div>
             </Sider>
 
+            {/* Mobile Navigation Drawer */}
+            <Drawer
+                placement="left"
+                open={mobileDrawerOpen}
+                onClose={() => setMobileDrawerOpen(false)}
+                width={260}
+                styles={{
+                    header: { display: 'none' },
+                    body: {
+                        padding: 0,
+                        background: '#111827',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        height: '100%',
+                    },
+                }}
+            >
+                <div>
+                    {/* Brand */}
+                    <div
+                        style={{
+                            height: 64,
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '0 20px',
+                            gap: 12,
+                            borderBottom: '1px solid #1f2937',
+                        }}
+                    >
+                        <div
+                            style={{
+                                width: 34,
+                                height: 34,
+                                borderRadius: 8,
+                                background: 'linear-gradient(135deg, #38bdf8, #2563eb)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifySelf: 'center',
+                                justifyContent: 'center',
+                                color: '#fff',
+                                fontSize: 16,
+                                fontWeight: 800,
+                            }}
+                        >
+                            ✦
+                        </div>
+                        <div>
+                            <div style={{ fontSize: 16, fontWeight: 700, color: '#f8fafc' }}>
+                                TaskMaster
+                            </div>
+                            <div style={{ fontSize: 10, color: '#94a3b8' }}>Workspace Mobile</div>
+                        </div>
+                    </div>
+
+                    {/* Menu */}
+                    <Menu
+                        theme="dark"
+                        selectedKeys={[selectedMenu]}
+                        mode="inline"
+                        items={menuItems}
+                        onClick={({ key }) => handleMenuClick(key)}
+                        style={{
+                            background: 'transparent',
+                            padding: '12px 10px',
+                            fontSize: 14,
+                        }}
+                    />
+                </div>
+
+                {/* User & Logout in Drawer */}
+                <div style={{ padding: '16px', borderTop: '1px solid #1f2937', background: '#0f172a' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                        <Avatar src={user?.image} icon={<UserOutlined />} size={36} />
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: '#f1f5f9' }} className="truncate">
+                                {fullName}
+                            </div>
+                            <div style={{ fontSize: 11, color: '#94a3b8' }} className="truncate">
+                                {user?.email}
+                            </div>
+                        </div>
+                    </div>
+
+                    <Button
+                        icon={<LogoutOutlined />}
+                        block
+                        danger
+                        onClick={handleLogout}
+                        style={{
+                            height: 38,
+                            borderRadius: 8,
+                            background: 'rgba(239, 68, 68, 0.10)',
+                            border: '1px solid rgba(239, 68, 68, 0.25)',
+                            color: '#fca5a5',
+                            fontWeight: 500,
+                            boxShadow: 'none',
+                        }}
+                    >
+                        Keluar (Logout)
+                    </Button>
+                </div>
+            </Drawer>
 
             {/* Main Layout Area */}
-            <Layout style={{ background: '#f8fafc' }}>
+            <Layout style={{ background: '#f8fafc', minWidth: 0 }}>
                 {/* Header */}
                 <Header
                     style={{
-                        height: 68,
-                        padding: '0 24px',
+                        height: 64,
+                        padding: '0 16px',
                         background: '#ffffff',
                         display: 'flex',
                         alignItems: 'center',
@@ -220,29 +303,43 @@ export default function Dashboard() {
                         lineHeight: 'normal',
                     }}
                 >
-                    {/* Left Section: Title & Subtitle */}
-                    <div>
-                        <div
-                            style={{
-                                fontSize: 18,
-                                fontWeight: 700,
-                                color: '#0f172a',
-                                letterSpacing: '-0.3px',
-                            }}
-                        >
-                            {selectedMenu === 'dashboard' && 'Kanban Board & Dashboard'}
-                            {selectedMenu === 'tasks' && 'Tugas Saya (My Tasks)'}
-                            {selectedMenu === 'settings' && 'Pengaturan Akun & Sistem'}
-                        </div>
-                        <div style={{ fontSize: 12, color: '#64748b' }}>
-                            {selectedMenu === 'dashboard' && 'Pantau dan kelola progres pekerjaan tim secara visual'}
-                            {selectedMenu === 'tasks' && 'Daftar seluruh tugas yang ditugaskan kepada Anda'}
-                            {selectedMenu === 'settings' && 'Konfigurasi akun dan preferensi aplikasi'}
+                    {/* Left: Mobile Menu Trigger + Title */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                        <Button
+                            className="mobile-only"
+                            type="text"
+                            icon={<MenuOutlined style={{ fontSize: 18 }} />}
+                            onClick={() => setMobileDrawerOpen(true)}
+                            style={{ padding: '4px 8px' }}
+                        />
+
+                        <div style={{ minWidth: 0 }}>
+                            <div
+                                style={{
+                                    fontSize: 16,
+                                    fontWeight: 700,
+                                    color: '#0f172a',
+                                    letterSpacing: '-0.3px',
+                                }}
+                                className="truncate"
+                            >
+                                {selectedMenu === 'dashboard' && 'Kanban Board'}
+                                {selectedMenu === 'tasks' && 'Tugas Saya'}
+                                {selectedMenu === 'settings' && 'Pengaturan'}
+                            </div>
+                            <div
+                                style={{ fontSize: 11, color: '#64748b' }}
+                                className="desktop-only truncate"
+                            >
+                                {selectedMenu === 'dashboard' && 'Pantau dan kelola progres pekerjaan secara visual'}
+                                {selectedMenu === 'tasks' && 'Daftar seluruh tugas yang ditugaskan kepada Anda'}
+                                {selectedMenu === 'settings' && 'Konfigurasi akun dan preferensi data'}
+                            </div>
                         </div>
                     </div>
 
-                    {/* Right Section: Add Task Button + User Profile + Logout */}
-                    <Space size={16} align="center">
+                    {/* Right: Quick Add Task + User Profile */}
+                    <Space size={10} align="center">
                         <Button
                             type="primary"
                             icon={<PlusOutlined />}
@@ -251,46 +348,48 @@ export default function Dashboard() {
                             style={{
                                 borderRadius: 6,
                                 fontWeight: 600,
-                                boxShadow: '0 2px 4px rgba(24, 144, 255, 0.2)',
                             }}
                         >
-                            Tambah Tugas
+                            <span className="desktop-only">Tambah Tugas</span>
                         </Button>
 
-                        <div style={{ height: 28, width: 1, background: '#e2e8f0' }} />
+                        <div className="desktop-only" style={{ height: 24, width: 1, background: '#e2e8f0' }} />
 
                         {/* User Profile */}
-                        <Space size={10} align="center">
+                        <Space size={8} align="center">
                             <Avatar
-                                size={36}
+                                size={32}
                                 src={user?.image}
                                 icon={<UserOutlined />}
                                 style={{
                                     border: '1px solid #cbd5e1',
                                     background: '#e0f2fe',
                                     color: '#0284c7',
+                                    cursor: 'pointer',
                                 }}
+                                onClick={() => setSelectedMenu('settings')}
                             />
 
-                            <div style={{ lineHeight: 1.3, display: 'none', minWidth: 100 }} className="user-info-text">
-                                <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>
-                                    {fullName}
+                            <div style={{ lineHeight: 1.2, minWidth: 80 }} className="desktop-only">
+                                <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>
+                                    {fullName.split(' ')[0]}
                                 </div>
-                                <div style={{ fontSize: 11, color: '#64748b' }}>
-                                    {user?.email || 'emily.johnson@x.dummyjson.com'}
+                                <div style={{ fontSize: 10, color: '#64748b' }}>
+                                    {user?.username || 'user'}
                                 </div>
                             </div>
                         </Space>
 
-                        {/* Quick Logout Button */}
+                        {/* Desktop Logout Button */}
                         <Button
+                            className="desktop-only"
                             icon={<LogoutOutlined />}
                             danger
                             type="text"
                             onClick={handleLogout}
                             style={{
                                 borderRadius: 6,
-                                fontWeight: 500,
+                                padding: '0 8px',
                             }}
                         >
                             Logout
@@ -300,10 +399,10 @@ export default function Dashboard() {
 
                 {/* Main Content Area */}
                 <Content
+                    className="dashboard-content-container"
                     style={{
-                        padding: '24px',
                         overflowY: 'auto',
-                        minHeight: 'calc(100vh - 68px)',
+                        minHeight: 'calc(100vh - 64px)',
                     }}
                 >
                     {/* View 1: Main Dashboard (Statistics + Filters + Kanban Board) */}

@@ -24,6 +24,7 @@ body {
   padding: 0;
   background-color: #f8fafc;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  overflow-x: hidden;
 }
 
 /* Custom sleek scrollbar for Kanban boards & horizontal lists */
@@ -52,62 +53,67 @@ body {
   white-space: nowrap;
 }
 
-
-/* Sidebar menu */
-.ant-layout-sider {
-  overflow: hidden;
+/* Responsive Utilities */
+.mobile-only {
+  display: none !important;
 }
 
-.ant-menu-dark {
-  background: transparent !important;
+.desktop-only {
+  display: block !important;
 }
 
-/* Default menu item */
-.ant-menu-dark .ant-menu-item {
-  color: #94a3b8 !important;
-  border-radius: 9px !important;
-  margin: 5px 0 !important;
-  width: 100% !important;
-  height: 44px !important;
-  line-height: 44px !important;
-  transition: all 0.2s ease;
+.desktop-flex {
+  display: flex !important;
 }
 
-/* Hover */
-.ant-menu-dark .ant-menu-item:hover {
-  color: #ffffff !important;
-  background: #1e293b !important;
+.dashboard-content-container {
+  padding: 24px;
+  transition: padding 0.2s ease;
 }
 
-/* Active menu */
-.ant-menu-dark .ant-menu-item-selected {
-  color: #ffffff !important;
-  background: linear-gradient(90deg,
-      #2563eb,
-      #1d4ed8) !important;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+.kanban-board-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 16px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Active icon */
-.ant-menu-dark .ant-menu-item-selected .ant-menu-item-icon {
-  color: #ffffff !important;
+.kanban-column-wrapper {
+  scroll-snap-align: start;
 }
 
-/* Collapse button */
-.ant-layout-sider-trigger {
-  background: #111827 !important;
-  border-top: 1px solid #273244;
-  color: #94a3b8 !important;
-}
-
-.ant-layout-sider-trigger:hover {
-  color: #ffffff !important;
-}
-
-
-@media (min-width: 640px) {
-  .user-info-text {
+/* Mobile & Tablet Styles (< 992px) */
+@media (max-width: 991px) {
+  .mobile-only {
     display: block !important;
+  }
+
+  .mobile-flex {
+    display: flex !important;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+
+  .dashboard-content-container {
+    padding: 16px 12px !important;
+  }
+}
+
+/* Small Smartphone Styles (< 576px) */
+@media (max-width: 575px) {
+  .user-info-text {
+    display: none !important;
+  }
+
+  .hide-on-xs {
+    display: none !important;
+  }
+
+  .compact-stat-card .ant-card-body {
+    padding: 12px 10px !important;
   }
 }
